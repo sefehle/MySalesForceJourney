@@ -1,0 +1,6 @@
+public class AccountUtils {
+    public static List<account> accountsByState(string state){
+        List<account>accountList = [SELECT Id, Name FROM Account WHERE BillingState = :state];
+        return accountList;
+    }
+}
