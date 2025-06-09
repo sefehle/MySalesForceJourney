@@ -1,0 +1,35 @@
+public class AccountTriggerHandler {
+    public static void CreateAccounts(List<Account> accList) {
+        for (Account acc : accList) {
+            if (acc.BillingState != null && acc.ShippingState != acc.BillingState) {
+                acc.ShippingState = acc.BillingState;
+            }
+        }
+    }
+}
+
+//apex trigger
+trigger AccountTrigger on Account (before insert) {
+     if (Trigger.isBefore && Trigger.isInsert) {
+        AccountTriggerHandler.CreateAccounts(Trigger.new);
+    }
+}
+
+//testing class
+@isTest
+public class AccountTriggerTest {
+    @isTest
+    static void testCreate200Records() {
+        List<Account> accounts = new List<Account>();
+        for (Integer i = 0; i < 200; i++) {
+            accounts.add(new Account(Name = 'Test Account ' + i, BillingState = 'CA'));
+        }
+
+        Test.startTest();
+        insert accounts;
+        Test.stopTest();
+
+        Integer countMatching = [SELECT COUNT() FROM Account WHERE ShippingState = 'CA'];
+        System.assertEquals(200, countMatching);
+    }
+}
